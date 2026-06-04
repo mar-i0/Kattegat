@@ -192,24 +192,53 @@ def render_response(response):
         else:
             print()
     print()
-    print("  ¿Deseas que profundice en alguna runa?")
+
+
+def answer(question, doc_summary, api_key, system_prompt, index_embeddings, chunks, sources):
+    style_results = []
+    if index_embeddings is not None:
+        style_results = query_style(question, index_embeddings, chunks, sources)
+
+    style_context = ""
+    if style_results:
+        style_parts = []
+        for r in style_results:
+            style_parts.append(f"[{r['label']}: {r['source']}]\n{r['text'][:400]}")
+        style_context = "\n\n---\n\n".join(style_parts)
+
+    response = call_ollama_cloud(api_key, system_prompt, style_context, doc_summary, question)
+    if response is None:
+        print(f"  ↻ Fallback a modelo local ({LOCAL_MODEL})...")
+        response = call_ollama_local(system_prompt, style_context, doc_summary, question)
+
+    render_response(response)
 
 
 @click.command()
-@click.argument("question")
+@click.argument("question", required=False, default=None)
 @click.option("--file", "-f", "files", multiple=True,
               help="PDF(s) con información económica/empresarial")
 def oracle(question, files):
-    """Consulta al oráculo nórdico.
+    """Consulta al oráculo nórdico. Pulsa Ctrl+C para salir.
 
-    QUESTION: tu pregunta para el vidente.
+    QUESTION: pregunta inicial (opcional).
     """
     api_key = load_api_key()
     if not api_key:
         print("❌ No se encontró OLLAMA_API_KEY en .env ni key.txt")
         sys.exit(1)
 
-    print("\n  🔮 Consultando al oráculo...\n")
+    print("\n  🔮 El oráculo de Kattegat está despierto.")
+    print("     Pulsa Ctrl+C para cerrar el velo.\n")
+
+    index_embeddings, chunks, sources = load_style_library()
+    if index_embeddings is None:
+        print("  ℹ️  Biblioteca de estilo no encontrada.")
+        print("     Ejecuta 'python prepare_style.py' y 'python embed.py' primero.\n")
+
+    system_prompt = ""
+    if SYSTEM_PROMPT_FILE.exists():
+        system_prompt = SYSTEM_PROMPT_FILE.read_text(encoding="utf-8")
 
     doc_summary = None
     if files:
@@ -226,39 +255,22 @@ def oracle(question, files):
         if doc_parts:
             doc_summary = "\n\n".join(doc_parts)
 
-    index_embeddings, chunks, sources = load_style_library()
-    style_results = []
-    if index_embeddings is not None:
-        style_results = query_style(question, index_embeddings, chunks, sources)
-    else:
-        print("  ℹ️  Biblioteca de estilo no encontrada.")
-        print("     Ejecuta 'python prepare_style.py' primero.")
+    # Responde la pregunta inicial si se pasó como argumento
+    if question:
+        answer(question, doc_summary, api_key, system_prompt, index_embeddings, chunks, sources)
 
-    style_context = ""
-    if style_results:
-        style_parts = []
-        for r in style_results:
-            label = r["label"]
-            source = r["source"]
-            text = r["text"][:400]
-            style_parts.append(f"[{label}: {source}]\n{text}")
-        style_context = "\n\n---\n\n".join(style_parts)
-
-    system_prompt = ""
-    if SYSTEM_PROMPT_FILE.exists():
-        system_prompt = SYSTEM_PROMPT_FILE.read_text(encoding="utf-8")
-
-    response = call_ollama_cloud(
-        api_key, system_prompt, style_context, doc_summary, question
-    )
-
-    if response is None:
-        print(f"  ↻ Fallback a modelo local ({LOCAL_MODEL})...")
-        response = call_ollama_local(
-            system_prompt, style_context, doc_summary, question
-        )
-
-    render_response(response)
+    # Bucle interactivo
+    try:
+        while True:
+            try:
+                question = input("  >> ").strip()
+            except EOFError:
+                break
+            if not question:
+                continue
+            answer(question, None, api_key, system_prompt, index_embeddings, chunks, sources)
+    except KeyboardInterrupt:
+        print("\n\n  Las runas se cierran. Hasta la próxima visión.\n")
 
 
 if __name__ == "__main__":
