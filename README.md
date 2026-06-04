@@ -1,4 +1,4 @@
-# Oráculo Nórdico
+# Kattegat
 
 Un oráculo con personalidad de völva vikinga que responde preguntas económicas y de inversión usando metáforas nórdicas. Combina un índice de embeddings semánticos con modelos de lenguaje vía Ollama.
 
@@ -17,8 +17,8 @@ Inspirado en el Oráculo de Kattegat. Los videntes vikingos son adivinos místic
 ## Instalación
 
 ```bash
-git clone https://github.com/mar-i0/Oraculo.git
-cd Oraculo
+git clone https://github.com/mar-i0/Kattegat.git
+cd Kattegat
 
 python -m venv .venv
 source .venv/bin/activate   # Linux/Mac
