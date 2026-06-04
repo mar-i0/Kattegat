@@ -2,6 +2,12 @@
 
 Un oráculo con personalidad de völva vikinga que responde preguntas económicas y de inversión usando metáforas nórdicas. Combina un índice de embeddings semánticos con modelos de lenguaje vía Ollama.
 
+<p align="center">
+  <img src="img/brujo.jpg" alt="El vidente nórdico" width="480"/>
+</p>
+
+Inspirado en el Oráculo de Kattegat. Los videntes vikingos son adivinos místicos con poderes sobrenaturales que pueden comunicarse con los dioses y responder preguntas sobre el futuro y el destino de uno en la vida.
+
 ## Requisitos
 
 - Python 3.10+
@@ -66,6 +72,14 @@ Oraculo/
 | Principal | `gemma3:12b` (Ollama Cloud) | Respuestas de calidad |
 | Fallback | `qwen2.5:1.5b` (local) | Requiere Ollama local |
 | Embeddings | `all-MiniLM-L6-v2` | HuggingFace, se descarga automáticamente |
+
+## Ejemplo
+
+<p align="center">
+  <img src="img/prediccion.png" alt="Predicción sobre BTC" width="600"/>
+</p>
+
+Ejemplo de predicción sobre BTC. La idea es que pueda hacer predicciones económicas pasándole un pdf de la prensa económica como Expansión.
 
 ## Re-indexar con tus propios documentos
 
