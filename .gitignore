@@ -1,0 +1,24 @@
+# Claves y secretos — NUNCA subir
+.env
+key.txt
+
+# Libros fuente (demasiado grandes y protegidos por copyright)
+Mediums/
+Inversión/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# Logs y temporales (excepto los del índice de estilo)
+*.log
+!style_index/build.log
+!style_index/embed.log
+.DS_Store
